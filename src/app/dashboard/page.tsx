@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase'; // supabase 클라이언트 임포트
 import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.scss'; // SCSS 파일 임포트
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const Dashboard = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   // 포스트 목록 불러오기
   useEffect(() => {
@@ -47,6 +49,11 @@ const Dashboard = () => {
         alert('포스트 삭제에 실패했습니다.');
       }
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut(); // ✅ 로그아웃 (쿠키 삭제)
+    router.push('/login');
   };
 
   if (loading) {
@@ -100,6 +107,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+      <button onClick={handleLogout}>로그아웃</button>
     </div>
   );
 };
