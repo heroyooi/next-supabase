@@ -35,6 +35,7 @@ export default function SignupPage() {
         {
           user_id: data.user.id, // auth.users의 ID
           username: email.split('@')[0], // 기본값 (이메일 앞부분)
+          email,
           avatar_url: '', // 기본값 설정 가능
         },
       ]);
