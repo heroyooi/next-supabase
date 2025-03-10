@@ -28,16 +28,16 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <Link href='/' className={styles.logo}>
+        <Link href="/" className={styles.logo}>
           Next+Supabase
         </Link>
         <nav className={styles.nav}>
-          <Link href='/' className={styles.navItem}>
+          <Link href="/" className={styles.navItem}>
             홈
           </Link>
           {user ? (
             <>
-              <Link href='/dashboard' className={styles.navItem}>
+              <Link href="/dashboard" className={styles.navItem}>
                 대시보드
               </Link>
               <button onClick={handleLogout} className={styles.navItem}>
@@ -45,9 +45,14 @@ export default function Header() {
               </button>
             </>
           ) : (
-            <Link href='/login' className={styles.navItem}>
-              로그인
-            </Link>
+            <>
+              <Link href="/signup" className={styles.navItem}>
+                회원가입
+              </Link>
+              <Link href="/login" className={styles.navItem}>
+                로그인
+              </Link>
+            </>
           )}
         </nav>
       </div>
