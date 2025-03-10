@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import styles from './create.module.scss'; // SCSS 파일 임포트
+import styles from './create.module.scss';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
-import styles from './update.module.scss'; // SCSS 파일 임포트
+import styles from './update.module.scss';
 
 const UpdatePost = () => {
   const { id } = useParams();

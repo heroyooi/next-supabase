@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase'; // supabase 클라이언트 임포트
 import { useRouter } from 'next/navigation';
-import styles from './dashboard.module.scss'; // SCSS 파일 임포트
+import styles from './dashboard.module.scss';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 const Dashboard = () => {
