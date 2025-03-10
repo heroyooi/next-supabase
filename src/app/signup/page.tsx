@@ -2,28 +2,52 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import styles from './signup.module.scss'; // module.scss 사용
+import styles from './signup.module.scss';
+import { useRouter } from 'next/navigation';
 
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   // 회원가입 함수
   const handleSignup = async () => {
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signUp({ email, password });
+    // 회원가입 요청
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
     if (error) {
       setError(error.message);
-    } else {
-      alert('회원가입 성공! 이메일을 확인하세요.');
-      window.location.href = '/login'; // 회원가입 후 로그인 페이지로 이동
+      setLoading(false);
+      return;
     }
 
+    // 프로필 추가
+    if (data.user) {
+      const { error: profileError } = await supabase.from('profiles').insert([
+        {
+          user_id: data.user.id, // auth.users의 ID
+          username: email.split('@')[0], // 기본값 (이메일 앞부분)
+          avatar_url: '', // 기본값 설정 가능
+        },
+      ]);
+
+      if (profileError) {
+        setError(`프로필 생성 실패: ${profileError.message}`);
+        setLoading(false);
+        return;
+      }
+    }
+
+    alert('회원가입 성공! 이메일을 확인하세요.');
+    router.push('/login');
     setLoading(false);
   };
 
