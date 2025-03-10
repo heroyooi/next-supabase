@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import styles from './create.module.scss'; // SCSS 파일 임포트
 
 const CreatePost = () => {
@@ -9,17 +9,42 @@ const CreatePost = () => {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const supabase = createClientComponentClient();
 
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // ✅ 현재 로그인된 사용자 세션 가져오기
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+
+    if (sessionError || !sessionData?.session?.user) {
+      setError('로그인이 필요합니다.');
+      setLoading(false);
+      return;
+    }
+
+    // ✅ 사용자 정보 가져오기 (Optional Chaining 사용)
+    const user = sessionData.session.user;
+    if (!user) {
+      setError('사용자 정보를 가져올 수 없습니다.');
+      setLoading(false);
+      return;
+    }
+
+    const userId = user.id;
+    const email = user.email; // ✅ email 가져오기
+
     try {
       const { data, error } = await supabase.from('posts').insert([
         {
           title,
           content,
+          email,
+          user_id: userId,
+          created_at: new Date(),
         },
       ]);
 

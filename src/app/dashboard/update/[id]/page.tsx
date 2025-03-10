@@ -1,18 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { useParams, useRouter } from 'next/navigation';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import styles from './update.module.scss'; // SCSS 파일 임포트
 
-const UpdatePost = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const UpdatePost = () => {
+  const { id } = useParams();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [post, setPost] = useState<any | null>(null);
   const router = useRouter();
+  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -38,11 +39,29 @@ const UpdatePost = ({ params }: { params: { id: string } }) => {
     setLoading(true);
     setError(null);
 
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
+
+    if (sessionError || !sessionData?.session?.user) {
+      setError('로그인이 필요합니다.');
+      setLoading(false);
+      return;
+    }
+
+    // ✅ 사용자 정보 가져오기 (Optional Chaining 사용)
+    const user = sessionData.session.user;
+    if (!user) {
+      setError('사용자 정보를 가져올 수 없습니다.');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('posts')
-        .update({ title, content })
-        .eq('id', id);
+        .update({ title, content, updated_at: new Date() })
+        .eq('id', id)
+        .eq('email', user.email);
 
       if (error) {
         throw error;
