@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { signIn } from '@/services/authService';
 import styles from './login.module.scss';
 
 export default function LoginPage() {
@@ -11,39 +11,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-  const supabase = createClientComponentClient();
 
   const handleLogin = async () => {
     setLoading(true);
     setError('');
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    try {
+      await signIn(email, password);
+      router.push('/dashboard');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError(String(err));
+      }
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // ✅ 로그인 후 쿠키에 인증 정보 반영
-    if (data.session) {
-      await supabase.auth.setSession({
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-      });
-
-      // ✅ 쿠키에 반영된 세션을 즉시 가져와서 확인
-      console.log(
-        '✅ 쿠키에 저장된 세션 확인:',
-        await supabase.auth.getSession()
-      );
-    }
-
-    // ✅ 대시보드로 이동
-    router.push('/dashboard');
   };
 
   return (

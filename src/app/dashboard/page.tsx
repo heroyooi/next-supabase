@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './dashboard.module.scss';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { getPosts } from '@/services/postService';
+import Link from 'next/link';
 
 const Dashboard = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -15,7 +17,7 @@ const Dashboard = () => {
   // 포스트 목록 불러오기
   useEffect(() => {
     const fetchPosts = async () => {
-      const { data, error } = await supabase.from('posts').select('*');
+      const data = await getPosts();
 
       if (error) {
         setError('포스트 목록을 불러오는 데 실패했습니다.');
@@ -81,12 +83,14 @@ const Dashboard = () => {
           ) : (
             posts.map((post) => (
               <div key={post.id} className={styles.card}>
-                <div className={styles['card-header']}>
-                  <h2>{post.title}</h2>
-                </div>
-                <div className={styles['card-body']}>
-                  <p>{post.content}</p>
-                </div>
+                <Link href={`/dashboard/posts/${post.id}`}>
+                  <div className={styles['card-header']}>
+                    <h2>{post.title}</h2>
+                  </div>
+                  <div className={styles['card-body']}>
+                    <p>{post.content}</p>
+                  </div>
+                </Link>
                 <div className={styles['card-footer']}>
                   <button
                     className={styles.button} // button 클래스 적용

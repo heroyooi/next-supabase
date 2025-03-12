@@ -3,24 +3,25 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import { getCurrentUser, logoutUser } from '@/services/authService';
 import styles from './header.module.scss';
 
 export default function Header() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
+  // 현재 로그인한 유저 정보 가져오기
   useEffect(() => {
     const fetchUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
     };
     fetchUser();
   }, []);
 
+  // 로그아웃 핸들러
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await logoutUser();
     setUser(null);
     router.push('/login');
   };
